@@ -12,6 +12,8 @@ ICMP_ECHO_REPLY = 0 #ICMP type code for echo reply messages
 
 HOP_NUMBER = 0 # Current hop number
 CURR_IP = "NULL" # IP adress of responder
+RECIVED = 0 # Packets Recived
+LOST = 0 # Packets Lost
 
 
 def checksum(string): 
@@ -45,6 +47,8 @@ def checksum(string):
 def receiveOnePing(icmpSocket, destinationAddress, timeSent):
 	global HOP_NUMBER
 	global CURR_IP
+	global LOST
+	global RECIVED
 	
 	# Wait for the socket to receive a reply
 	# Once received, record time of receipt, otherwise, handle a timeout
@@ -53,6 +57,7 @@ def receiveOnePing(icmpSocket, destinationAddress, timeSent):
 		recived = time.time()
 	except:
 		print("Hop " + str(HOP_NUMBER) + " Timed Out")
+		LOST = LOST + 1
 		return
 	
 	# Isolate address
@@ -66,6 +71,8 @@ def receiveOnePing(icmpSocket, destinationAddress, timeSent):
 	# Compare the time of receipt to time of sending, producing the total network delay
 	delay = recived - timeSent
 	delay = round(delay * 1000.0, 3)
+	
+	RECIVED = RECIVED + 1
 	
 	# Print the result
 	print("Hop " + str(HOP_NUMBER) + " Delay: " + str(delay) + " ms, IP Address: " + address + ", Host Name: " + addressName)
@@ -117,7 +124,11 @@ def ping(host):
 		time.sleep(1)
 	# Continue this process until end is reached	
 	
-ping("www.bbc.co.uk")
+host = input("Input the adress of the site: ")
+ping(host)
+
+print("Unreachable Destinations: " + str(LOST))
+print("Recived: " + str(RECIVED))
 
 
 
