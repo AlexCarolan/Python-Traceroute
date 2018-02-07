@@ -42,7 +42,7 @@ def checksum(string):
 
 	return answer 
 	
-def receiveOnePing(icmpSocket, destinationAddress, ID, timeout, timeSent):
+def receiveOnePing(icmpSocket, destinationAddress, timeSent):
 	global HOP_NUMBER
 	global CURR_IP
 	
@@ -70,13 +70,13 @@ def receiveOnePing(icmpSocket, destinationAddress, ID, timeout, timeSent):
 	# Print the result
 	print("Hop " + str(HOP_NUMBER) + " Delay: " + str(delay) + " ms, IP Address: " + address + ", Host Name: " + addressName)
 	
-def sendOnePing(icmpSocket, destinationAddress, ID):
+def sendOnePing(icmpSocket, destinationAddress):
 	# 1. Build ICMP header
-	header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, 0, ID, 1)
+	header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, 0, 1, 1)
 	# 2. Checksum ICMP packet using given function
 	chkSum = checksum(header)
 	# 3. Insert checksum into packet
-	packet = struct.pack("bbHHh", ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, chkSum, ID, 1)
+	packet = struct.pack("bbHHh", ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, chkSum, 1, 1)
 	# 4. Send packet using socket
 	icmpSocket.send(packet)
 	# 5. Record time of sending
@@ -89,13 +89,13 @@ def doOnePing(destinationAddress, timeout):
 	# 1. Create ICMP socket
 	icmp = socket.getprotobyname("icmp")
 	sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-	sock.setsockopt(socket.SOL_IP, socket.IP_TTL, HOP_NUMBER)
+	#sock.setsockopt(socket.SOL_IP, socket.IP_TTL, HOP_NUMBER)
 	sock.connect((destinationAddress, 80))
 	sock.settimeout(timeout)
 	# 2. Call sendOnePing function
-	timeSent = sendOnePing(sock, destinationAddress, ID)
+	timeSent = sendOnePing(sock, destinationAddress)
 	# 3. Call receiveOnePing function
-	receiveOnePing(sock, destinationAddress, ID, timeout, timeSent)
+	receiveOnePing(sock, destinationAddress, timeSent)
 	# 4. Close ICMP socket
 	sock.close()
 	# 5. Return total network delay
