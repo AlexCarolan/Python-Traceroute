@@ -52,7 +52,7 @@ def receiveOnePing(icmpSocket, destinationAddress, timeSent):
 		packet_data, address = icmpSocket.recvfrom(1024)
 		recived = time.time()
 	except:
-		print("Time Out")
+		print("Hop " + str(HOP_NUMBER) + " Timed Out")
 		return
 	
 	# Isolate address
